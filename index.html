@@ -432,7 +432,7 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast hidden"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -893,10 +893,14 @@
             // Show toast notification
             function showToast(message) {
                 toast.textContent = message;
+                toast.classList.remove('hidden');
                 toast.classList.add('show');
                 
                 setTimeout(() => {
                     toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 300);
                 }, 3000);
             }
             
