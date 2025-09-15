@@ -36,6 +36,7 @@
             color: white;
             border-radius: 8px;
             box-shadow: var(--shadow);
+            position: relative;
         }
         
         h1 {
@@ -57,6 +58,10 @@
             cursor: pointer;
             font-size: 1rem;
             transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
         
         .btn:hover {
@@ -77,6 +82,22 @@
         
         .btn-danger:hover {
             background-color: #d32f2f;
+        }
+        
+        .btn-info {
+            background-color: #2196F3;
+        }
+        
+        .btn-info:hover {
+            background-color: #0b7dda;
+        }
+        
+        .header-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
         }
         
         /* Form Styles */
@@ -146,6 +167,7 @@
             overflow: hidden;
             box-shadow: var(--shadow);
             transition: transform 0.3s;
+            position: relative;
         }
         
         .recipe-card:hover {
@@ -192,6 +214,61 @@
             display: none;
         }
         
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
         /* Empty state */
         .empty-state {
             text-align: center;
@@ -201,10 +278,37 @@
             box-shadow: var(--shadow);
         }
         
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(100px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .recipes-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .header-actions {
+                position: static;
+                margin-top: 15px;
+                justify-content: center;
             }
         }
     </style>
@@ -214,6 +318,22 @@
         <header>
             <h1>Recipe Box</h1>
             <p>Save and organize your favorite recipes</p>
+            <div class="header-actions">
+                <button id="import-btn" class="btn btn-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Import
+                </button>
+                <button id="export-btn" class="btn btn-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Export
+                </button>
+            </div>
         </header>
         
         <button id="show-form-btn" class="btn">Add New Recipe</button>
@@ -273,6 +393,47 @@
         </section>
     </div>
 
+    <!-- Import Modal -->
+    <div id="import-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Import Recipes</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Select a JSON file to import recipes. This will replace your current recipes.</p>
+                <input type="file" id="import-file" accept=".json" style="margin: 15px 0;">
+                <textarea id="import-text" placeholder="Or paste JSON data here" style="min-height: 150px; width: 100%; padding: 10px;"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-import" class="btn btn-danger">Cancel</button>
+                <button id="confirm-import" class="btn">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Share Recipe</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Copy this link to share the recipe:</p>
+                <input type="text" id="share-url" readonly style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+                <p style="font-size: 0.9rem; color: #666;">Note: This link will only work on this device as recipes are stored locally.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="copy-link" class="btn">Copy Link</button>
+                <button id="close-share" class="btn btn-danger">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
@@ -288,10 +449,24 @@
             const instructionsList = document.getElementById('instructions-list');
             const imageInput = document.getElementById('recipe-image');
             const imagePreview = document.getElementById('image-preview');
+            const importBtn = document.getElementById('import-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const importModal = document.getElementById('import-modal');
+            const shareModal = document.getElementById('share-modal');
+            const closeModalBtns = document.querySelectorAll('.close-modal');
+            const cancelImportBtn = document.getElementById('cancel-import');
+            const confirmImportBtn = document.getElementById('confirm-import');
+            const closeShareBtn = document.getElementById('close-share');
+            const copyLinkBtn = document.getElementById('copy-link');
+            const importFile = document.getElementById('import-file');
+            const importText = document.getElementById('import-text');
+            const shareUrl = document.getElementById('share-url');
+            const toast = document.getElementById('toast');
             
             // State
             let recipes = JSON.parse(localStorage.getItem('recipes')) || [];
             let editMode = false;
+            let currentRecipeId = null;
             
             // Initialize the app
             function init() {
@@ -305,6 +480,14 @@
                 addIngredientBtn.addEventListener('click', addIngredientField);
                 addInstructionBtn.addEventListener('click', addInstructionField);
                 imageInput.addEventListener('change', handleImageUpload);
+                importBtn.addEventListener('click', showImportModal);
+                exportBtn.addEventListener('click', exportData);
+                cancelImportBtn.addEventListener('click', hideImportModal);
+                confirmImportBtn.addEventListener('click', importData);
+                closeShareBtn.addEventListener('click', hideShareModal);
+                copyLinkBtn.addEventListener('click', copyShareLink);
+                closeModalBtns.forEach(btn => btn.addEventListener('click', hideModals));
+                importFile.addEventListener('change', handleFileSelect);
                 
                 // Event delegation for dynamic elements
                 ingredientsList.addEventListener('click', function(e) {
@@ -331,6 +514,9 @@
                     } else if (e.target.classList.contains('delete-btn')) {
                         const recipeId = e.target.dataset.id;
                         deleteRecipe(recipeId);
+                    } else if (e.target.classList.contains('share-btn')) {
+                        const recipeId = e.target.dataset.id;
+                        shareRecipe(recipeId);
                     }
                 });
             }
@@ -360,6 +546,12 @@
                                 </ol>
                             </div>
                             <div class="recipe-actions">
+                                <button class="btn share-btn" data-id="${recipe.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                                    </svg>
+                                    Share
+                                </button>
                                 <button class="btn edit-btn" data-id="${recipe.id}">Edit</button>
                                 <button class="btn btn-danger delete-btn" data-id="${recipe.id}">Delete</button>
                             </div>
@@ -516,6 +708,8 @@
                 renderRecipes();
                 updateEmptyState();
                 hideForm();
+                
+                showToast('Recipe saved successfully!');
             }
             
             // Edit recipe
@@ -587,11 +781,154 @@
                     localStorage.setItem('recipes', JSON.stringify(recipes));
                     renderRecipes();
                     updateEmptyState();
+                    showToast('Recipe deleted successfully!');
+                }
+            }
+            
+            // Show import modal
+            function showImportModal() {
+                importModal.classList.remove('hidden');
+                importFile.value = '';
+                importText.value = '';
+            }
+            
+            // Hide import modal
+            function hideImportModal() {
+                importModal.classList.add('hidden');
+            }
+            
+            // Hide all modals
+            function hideModals() {
+                importModal.classList.add('hidden');
+                shareModal.classList.add('hidden');
+            }
+            
+            // Handle file selection for import
+            function handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        importText.value = event.target.result;
+                    };
+                    reader.readAsText(file);
+                }
+            }
+            
+            // Import data
+            function importData() {
+                try {
+                    let data;
+                    
+                    if (importText.value) {
+                        data = JSON.parse(importText.value);
+                    } else if (importFile.files[0]) {
+                        // This would be handled by handleFileSelect
+                        return;
+                    } else {
+                        showToast('Please select a file or paste JSON data');
+                        return;
+                    }
+                    
+                    if (Array.isArray(data)) {
+                        recipes = data;
+                        localStorage.setItem('recipes', JSON.stringify(recipes));
+                        renderRecipes();
+                        updateEmptyState();
+                        hideImportModal();
+                        showToast('Recipes imported successfully!');
+                    } else {
+                        showToast('Invalid recipe data format');
+                    }
+                } catch (error) {
+                    showToast('Error parsing JSON data: ' + error.message);
+                }
+            }
+            
+            // Export data
+            function exportData() {
+                if (recipes.length === 0) {
+                    showToast('No recipes to export');
+                    return;
+                }
+                
+                const dataStr = JSON.stringify(recipes, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = 'recipes.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                showToast('Recipes exported successfully!');
+            }
+            
+            // Share recipe
+            function shareRecipe(id) {
+                currentRecipeId = id;
+                const recipe = recipes.find(recipe => recipe.id === id);
+                
+                if (recipe) {
+                    // Create a shareable URL (in a real app, this would be a server-generated URL)
+                    const url = `${window.location.origin}${window.location.pathname}?recipe=${id}`;
+                    shareUrl.value = url;
+                    shareModal.classList.remove('hidden');
+                }
+            }
+            
+            // Hide share modal
+            function hideShareModal() {
+                shareModal.classList.add('hidden');
+            }
+            
+            // Copy share link to clipboard
+            function copyShareLink() {
+                shareUrl.select();
+                document.execCommand('copy');
+                showToast('Link copied to clipboard!');
+            }
+            
+            // Show toast notification
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Check for recipe in URL parameters
+            function checkUrlForRecipe() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const recipeId = urlParams.get('recipe');
+                
+                if (recipeId) {
+                    const recipe = recipes.find(recipe => recipe.id === recipeId);
+                    if (recipe) {
+                        // Scroll to the recipe
+                        const recipeElement = document.querySelector(`[data-id="${recipeId}"]`);
+                        if (recipeElement) {
+                            recipeElement.scrollIntoView({ behavior: 'smooth' });
+                            
+                            // Highlight the recipe temporarily
+                            const recipeCard = recipeElement.closest('.recipe-card');
+                            recipeCard.style.boxShadow = '0 0 0 3px var(--primary-color)';
+                            setTimeout(() => {
+                                recipeCard.style.boxShadow = '';
+                            }, 2000);
+                        }
+                    }
                 }
             }
             
             // Initialize the app
             init();
+            
+            // Check for recipe in URL
+            checkUrlForRecipe();
         });
     </script>
 </body>
