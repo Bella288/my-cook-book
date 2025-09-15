@@ -98,6 +98,14 @@
             background-color: #0b7dda;
         }
         
+        .btn-github {
+            background-color: #333;
+        }
+        
+        .btn-github:hover {
+            background-color: #24292e;
+        }
+        
         .header-actions {
             position: absolute;
             top: 20px;
@@ -317,6 +325,30 @@
                 justify-content: center;
             }
         }
+        
+        /* GitHub status indicator */
+        .github-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-connected {
+            background-color: #4CAF50;
+        }
+        
+        .status-disconnected {
+            background-color: #f44336;
+        }
     </style>
 </head>
 <body>
@@ -325,6 +357,12 @@
             <h1>Recipe Box</h1>
             <p>Save and organize your favorite recipes</p>
             <div class="header-actions">
+                <button id="github-toggle" class="btn btn-github">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                    <span id="github-status">Cloud: Off</span>
+                </button>
                 <button id="import-btn" class="btn btn-info">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
@@ -399,6 +437,43 @@
         </section>
     </div>
 
+    <!-- GitHub Config Modal -->
+    <div id="github-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">GitHub Integration</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Store your recipes on GitHub to access them from any device.</p>
+                <div class="form-group">
+                    <label for="github-token">GitHub Personal Access Token</label>
+                    <input type="password" id="github-token" placeholder="Enter your GitHub token">
+                    <p style="font-size: 0.8rem; margin-top: 5px;">
+                        Create a fine-grained token with read/write permissions for your repository.
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="github-enabled"> Enable cloud sync
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="github-share"> Share recipes publicly
+                    </label>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">
+                        When enabled, your recipes will be added to the public shareable.json file.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-github" class="btn btn-danger">Cancel</button>
+                <button id="save-github" class="btn">Save</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Import Modal -->
     <div id="import-modal" class="modal hidden">
         <div class="modal-content">
@@ -428,7 +503,12 @@
             <div class="modal-body">
                 <p>Copy this link to share the recipe:</p>
                 <input type="text" id="share-url" readonly style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
-                <p style="font-size: 0.9rem; color: #666;">Note: This link will only work on this device as recipes are stored locally.</p>
+                <p style="font-size: 0.9rem; color: #666;" id="share-note">Note: This link will only work on this device as recipes are stored locally.</p>
+                <div class="form-group" id="cloud-share-option" style="margin-top: 15px;">
+                    <label>
+                        <input type="checkbox" id="share-to-cloud"> Upload to cloud for sharing across devices
+                    </label>
+                </div>
             </div>
             <div class="modal-footer">
                 <button id="copy-link" class="btn">Copy Link</button>
@@ -468,11 +548,37 @@
             const importText = document.getElementById('import-text');
             const shareUrl = document.getElementById('share-url');
             const toast = document.getElementById('toast');
+            const githubToggleBtn = document.getElementById('github-toggle');
+            const githubModal = document.getElementById('github-modal');
+            const githubTokenInput = document.getElementById('github-token');
+            const githubEnabledCheckbox = document.getElementById('github-enabled');
+            const githubShareCheckbox = document.getElementById('github-share');
+            const saveGithubBtn = document.getElementById('save-github');
+            const cancelGithubBtn = document.getElementById('cancel-github');
+            const githubStatus = document.getElementById('github-status');
+            const cloudShareOption = document.getElementById('cloud-share-option');
+            const shareToCloudCheckbox = document.getElementById('share-to-cloud');
+            const shareNote = document.getElementById('share-note');
+            
+            // GitHub Configuration
+            const GITHUB_USERNAME = 'Bella288';
+            const GITHUB_REPO = 'my-cook-book';
+            const GITHUB_BRANCH = 'main';
+            const SHAREABLE_FILE_PATH = 'shareable.json';
+            const GITHUB_API_BASE = 'https://api.github.com';
+            
+            // Use the provided API key
+            const DEFAULT_GITHUB_TOKEN = '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';
             
             // State
             let recipes = JSON.parse(localStorage.getItem('recipes')) || [];
             let editMode = false;
             let currentRecipeId = null;
+            let githubConfig = {
+                token: localStorage.getItem('githubToken') || DEFAULT_GITHUB_TOKEN,
+                enabled: localStorage.getItem('githubEnabled') === 'true',
+                sharePublic: localStorage.getItem('githubSharePublic') === 'true'
+            };
             
             // Initialize the app
             function init() {
@@ -481,6 +587,7 @@
                 
                 renderRecipes();
                 updateEmptyState();
+                updateGithubStatus();
                 
                 // Event listeners
                 showFormBtn.addEventListener('click', showForm);
@@ -497,6 +604,10 @@
                 copyLinkBtn.addEventListener('click', copyShareLink);
                 closeModalBtns.forEach(btn => btn.addEventListener('click', hideModals));
                 importFile.addEventListener('change', handleFileSelect);
+                githubToggleBtn.addEventListener('click', showGithubModal);
+                saveGithubBtn.addEventListener('click', saveGithubConfig);
+                cancelGithubBtn.addEventListener('click', hideGithubModal);
+                shareToCloudCheckbox.addEventListener('change', toggleCloudShareOption);
                 
                 // Event delegation for dynamic elements
                 ingredientsList.addEventListener('click', function(e) {
@@ -528,6 +639,9 @@
                         shareRecipe(recipeId);
                     }
                 });
+                
+                // Check for shared recipes from URL
+                checkUrlForRecipe();
             }
             
             // Render all recipes
@@ -579,6 +693,19 @@
                 } else {
                     emptyState.classList.add('hidden');
                     recipesGrid.classList.remove('hidden');
+                }
+            }
+            
+            // Update GitHub status display
+            function updateGithubStatus() {
+                if (githubConfig.enabled) {
+                    githubStatus.innerHTML = `Cloud: <span class="status-dot status-connected"></span> On`;
+                    cloudShareOption.classList.remove('hidden');
+                    shareNote.classList.add('hidden');
+                } else {
+                    githubStatus.innerHTML = `Cloud: <span class="status-dot status-disconnected"></span> Off`;
+                    cloudShareOption.classList.add('hidden');
+                    shareNote.classList.remove('hidden');
                 }
             }
             
@@ -794,6 +921,42 @@
                 }
             }
             
+            // Show GitHub modal
+            function showGithubModal() {
+                githubTokenInput.value = githubConfig.token;
+                githubEnabledCheckbox.checked = githubConfig.enabled;
+                githubShareCheckbox.checked = githubConfig.sharePublic;
+                githubModal.classList.remove('hidden');
+            }
+            
+            // Hide GitHub modal
+            function hideGithubModal() {
+                githubModal.classList.add('hidden');
+            }
+            
+            // Save GitHub configuration
+            function saveGithubConfig() {
+                githubConfig.token = githubTokenInput.value.trim();
+                githubConfig.enabled = githubEnabledCheckbox.checked;
+                githubConfig.sharePublic = githubShareCheckbox.checked;
+                
+                localStorage.setItem('githubToken', githubConfig.token);
+                localStorage.setItem('githubEnabled', githubConfig.enabled);
+                localStorage.setItem('githubSharePublic', githubConfig.sharePublic);
+                
+                updateGithubStatus();
+                hideGithubModal();
+                showToast('GitHub settings saved');
+            }
+            
+            // Toggle cloud share option
+            function toggleCloudShareOption() {
+                if (shareToCloudCheckbox.checked && !githubConfig.enabled) {
+                    showToast('Please enable cloud sync in GitHub settings first');
+                    shareToCloudCheckbox.checked = false;
+                }
+            }
+            
             // Show import modal
             function showImportModal() {
                 importModal.classList.remove('hidden');
@@ -810,6 +973,7 @@
             function hideModals() {
                 importModal.classList.add('hidden');
                 shareModal.classList.add('hidden');
+                githubModal.classList.add('hidden');
             }
             
             // Handle file selection for import
@@ -874,22 +1038,161 @@
                 showToast('Recipes exported successfully!');
             }
             
+            // GitHub API functions
+            async function githubRequest(endpoint, options = {}) {
+                if (!githubConfig.token) {
+                    throw new Error('GitHub token not configured');
+                }
+                
+                const response = await fetch(`${GITHUB_API_BASE}${endpoint}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        ...options.headers
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                }
+                
+                return response.json();
+            }
+            
+            // Get shareable recipes from GitHub
+            async function getShareableRecipes() {
+                try {
+                    // First try to get from the API
+                    try {
+                        const url = `/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${SHAREABLE_FILE_PATH}?ref=${GITHUB_BRANCH}`;
+                        const data = await githubRequest(url);
+                        const content = atob(data.content.replace(/\s/g, ''));
+                        return JSON.parse(content);
+                    } catch (error) {
+                        console.log('API fetch failed, trying raw URL');
+                        // Fallback to raw URL
+                        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/${GITHUB_BRANCH}/${SHAREABLE_FILE_PATH}`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch shareable recipes');
+                        }
+                        return await response.json();
+                    }
+                } catch (error) {
+                    console.error('Error fetching shareable recipes:', error);
+                    showToast('Error loading shared recipes');
+                    return [];
+                }
+            }
+            
+            // Save recipe to GitHub
+            async function saveRecipeToGitHub(recipe) {
+                try {
+                    // Get current file content
+                    let currentContent = [];
+                    let sha = null;
+                    
+                    try {
+                        const url = `/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${SHAREABLE_FILE_PATH}?ref=${GITHUB_BRANCH}`;
+                        const data = await githubRequest(url);
+                        currentContent = JSON.parse(atob(data.content.replace(/\s/g, '')));
+                        sha = data.sha;
+                    } catch (error) {
+                        // File might not exist yet, that's okay
+                        console.log('File does not exist yet, will create');
+                    }
+                    
+                    // Check if recipe already exists
+                    const existingIndex = currentContent.findIndex(r => r.id === recipe.id);
+                    
+                    if (existingIndex !== -1) {
+                        // Update existing recipe
+                        currentContent[existingIndex] = recipe;
+                    } else {
+                        // Add new recipe
+                        currentContent.push(recipe);
+                    }
+                    
+                    // Prepare the update
+                    const content = btoa(JSON.stringify(currentContent, null, 2));
+                    const message = existingIndex !== -1 ? 
+                        `Update recipe: ${recipe.title}` : 
+                        `Add recipe: ${recipe.title}`;
+                    
+                    // Update the file
+                    await githubRequest(
+                        `/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${SHAREABLE_FILE_PATH}`,
+                        {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                message,
+                                content,
+                                sha,
+                                branch: GITHUB_BRANCH
+                            })
+                        }
+                    );
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error saving to GitHub:', error);
+                    throw new Error('Failed to save recipe to cloud');
+                }
+            }
+            
             // Share recipe
-            function shareRecipe(id) {
-                currentRecipeId = id;
+            async function shareRecipe(id) {
                 const recipe = recipes.find(recipe => recipe.id === id);
                 
-                if (recipe) {
-                    // Create a shareable URL (in a real app, this would be a server-generated URL)
-                    const url = `${window.location.origin}${window.location.pathname}?recipe=${id}`;
-                    shareUrl.value = url;
-                    shareModal.classList.remove('hidden');
+                if (!recipe) return;
+                
+                currentRecipeId = id;
+                
+                // Create share URL
+                const url = `${window.location.origin}${window.location.pathname}?recipe=${id}`;
+                shareUrl.value = url;
+                
+                // Show cloud option if enabled
+                if (githubConfig.enabled) {
+                    shareToCloudCheckbox.checked = false;
+                    cloudShareOption.classList.remove('hidden');
+                    shareNote.classList.add('hidden');
+                } else {
+                    cloudShareOption.classList.add('hidden');
+                    shareNote.classList.remove('hidden');
                 }
+                
+                shareModal.classList.remove('hidden');
             }
             
             // Hide share modal
             function hideShareModal() {
                 shareModal.classList.add('hidden');
+                
+                // If user selected to share to cloud, handle that
+                if (shareToCloudCheckbox.checked && githubConfig.enabled) {
+                    uploadRecipeToCloud(currentRecipeId);
+                }
+            }
+            
+            // Upload recipe to cloud
+            async function uploadRecipeToCloud(id) {
+                const recipe = recipes.find(recipe => recipe.id === id);
+                
+                if (!recipe) return;
+                
+                try {
+                    await saveRecipeToGitHub(recipe);
+                    
+                    // Update the share URL to include cloud source
+                    const url = `${window.location.origin}${window.location.pathname}?recipe=${id}&source=cloud`;
+                    shareUrl.value = url;
+                    
+                    showToast('Recipe uploaded to cloud successfully!');
+                } catch (error) {
+                    console.error('Error uploading to cloud:', error);
+                    showToast('Error uploading to cloud. Please check your token.');
+                }
             }
             
             // Copy share link to clipboard
@@ -914,34 +1217,56 @@
             }
             
             // Check for recipe in URL parameters
-            function checkUrlForRecipe() {
+            async function checkUrlForRecipe() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const recipeId = urlParams.get('recipe');
+                const source = urlParams.get('source');
                 
-                if (recipeId) {
-                    const recipe = recipes.find(recipe => recipe.id === recipeId);
-                    if (recipe) {
-                        // Scroll to the recipe
-                        const recipeElement = document.querySelector(`[data-id="${recipeId}"]`);
+                if (!recipeId) return;
+                
+                let recipe = recipes.find(recipe => recipe.id === recipeId);
+                
+                // If recipe not found locally and source is cloud, try to fetch from GitHub
+                if (!recipe && source === 'cloud') {
+                    try {
+                        const shareableRecipes = await getShareableRecipes();
+                        recipe = shareableRecipes.find(r => r.id === recipeId);
+                        
+                        if (recipe) {
+                            // Add to local recipes
+                            recipes.push(recipe);
+                            localStorage.setItem('recipes', JSON.stringify(recipes));
+                            renderRecipes();
+                            updateEmptyState();
+                            showToast('Shared recipe imported successfully!');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching shared recipe:', error);
+                        showToast('Error loading shared recipe');
+                    }
+                }
+                
+                // Scroll to the recipe if found
+                if (recipe) {
+                    // Wait for recipes to render
+                    setTimeout(() => {
+                        const recipeElement = document.querySelector(`.edit-btn[data-id="${recipeId}"]`);
                         if (recipeElement) {
-                            recipeElement.scrollIntoView({ behavior: 'smooth' });
+                            recipeElement.closest('.recipe-card').scrollIntoView({ behavior: 'smooth' });
                             
-                            // Highlight the recipe temporarily
+                            // Highlight the recipe
                             const recipeCard = recipeElement.closest('.recipe-card');
                             recipeCard.style.boxShadow = '0 0 0 3px var(--primary-color)';
                             setTimeout(() => {
                                 recipeCard.style.boxShadow = '';
                             }, 2000);
                         }
-                    }
+                    }, 100);
                 }
             }
             
             // Initialize the app
             init();
-            
-            // Check for recipe in URL
-            checkUrlForRecipe();
         });
     </script>
 </body>
