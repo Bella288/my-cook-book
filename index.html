@@ -107,22 +107,30 @@
         }
         
         textarea {
-            min-height: 150px;
+            min-height: 100px;
             resize: vertical;
         }
         
-        .ingredients-list {
+        .ingredients-list, .instructions-list {
             margin-top: 10px;
         }
         
-        .ingredient-item {
+        .ingredient-item, .instruction-item {
             display: flex;
             margin-bottom: 10px;
+            align-items: center;
         }
         
-        .ingredient-item input {
+        .ingredient-item input, .instruction-item input {
             flex: 1;
             margin-right: 10px;
+        }
+        
+        .step-number {
+            min-width: 30px;
+            text-align: right;
+            margin-right: 10px;
+            font-weight: bold;
         }
         
         /* Recipe Grid */
@@ -162,6 +170,16 @@
         
         .recipe-ingredients, .recipe-instructions {
             margin-bottom: 15px;
+        }
+        
+        .recipe-steps {
+            list-style-position: inside;
+            padding-left: 0;
+        }
+        
+        .recipe-steps li {
+            margin-bottom: 8px;
+            padding-left: 5px;
         }
         
         .recipe-actions {
@@ -220,15 +238,22 @@
                     <div id="ingredients-list" class="ingredients-list">
                         <div class="ingredient-item">
                             <input type="text" class="ingredient-input" placeholder="Ingredient">
-                            <button type="button" class="btn btn-danger remove-ingredient">X</button>
+                            <button type="button" class="btn btn-danger remove-item">X</button>
                         </div>
                     </div>
                     <button type="button" id="add-ingredient" class="btn" style="margin-top: 10px;">Add Another Ingredient</button>
                 </div>
                 
                 <div class="form-group">
-                    <label for="recipe-instructions">Instructions</label>
-                    <textarea id="recipe-instructions" required></textarea>
+                    <label>Instructions</label>
+                    <div id="instructions-list" class="instructions-list">
+                        <div class="instruction-item">
+                            <span class="step-number">1.</span>
+                            <input type="text" class="instruction-input" placeholder="Step description">
+                            <button type="button" class="btn btn-danger remove-item">X</button>
+                        </div>
+                    </div>
+                    <button type="button" id="add-instruction" class="btn" style="margin-top: 10px;">Add Another Step</button>
                 </div>
                 
                 <div class="form-group">
@@ -258,7 +283,9 @@
             const recipesGrid = document.getElementById('recipes-grid');
             const emptyState = document.getElementById('empty-state');
             const addIngredientBtn = document.getElementById('add-ingredient');
+            const addInstructionBtn = document.getElementById('add-instruction');
             const ingredientsList = document.getElementById('ingredients-list');
+            const instructionsList = document.getElementById('instructions-list');
             const imageInput = document.getElementById('recipe-image');
             const imagePreview = document.getElementById('image-preview');
             
@@ -276,13 +303,23 @@
                 cancelFormBtn.addEventListener('click', hideForm);
                 recipeForm.addEventListener('submit', handleFormSubmit);
                 addIngredientBtn.addEventListener('click', addIngredientField);
+                addInstructionBtn.addEventListener('click', addInstructionField);
                 imageInput.addEventListener('change', handleImageUpload);
                 
                 // Event delegation for dynamic elements
                 ingredientsList.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('remove-ingredient')) {
+                    if (e.target.classList.contains('remove-item')) {
                         if (ingredientsList.children.length > 1) {
                             e.target.parentElement.remove();
+                        }
+                    }
+                });
+                
+                instructionsList.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('remove-item')) {
+                        if (instructionsList.children.length > 1) {
+                            e.target.parentElement.remove();
+                            updateStepNumbers();
                         }
                     }
                 });
@@ -318,7 +355,9 @@
                             </div>
                             <div class="recipe-instructions">
                                 <h4>Instructions</h4>
-                                <p>${recipe.instructions}</p>
+                                <ol class="recipe-steps">
+                                    ${recipe.instructions.map((step, index) => `<li>${step}</li>`).join('')}
+                                </ol>
                             </div>
                             <div class="recipe-actions">
                                 <button class="btn edit-btn" data-id="${recipe.id}">Edit</button>
@@ -361,7 +400,14 @@
                 ingredientsList.innerHTML = `
                     <div class="ingredient-item">
                         <input type="text" class="ingredient-input" placeholder="Ingredient">
-                        <button type="button" class="btn btn-danger remove-ingredient">X</button>
+                        <button type="button" class="btn btn-danger remove-item">X</button>
+                    </div>
+                `;
+                instructionsList.innerHTML = `
+                    <div class="instruction-item">
+                        <span class="step-number">1.</span>
+                        <input type="text" class="instruction-input" placeholder="Step description">
+                        <button type="button" class="btn btn-danger remove-item">X</button>
                     </div>
                 `;
                 imagePreview.classList.add('hidden');
@@ -375,9 +421,30 @@
                 ingredientItem.className = 'ingredient-item';
                 ingredientItem.innerHTML = `
                     <input type="text" class="ingredient-input" placeholder="Ingredient">
-                    <button type="button" class="btn btn-danger remove-ingredient">X</button>
+                    <button type="button" class="btn btn-danger remove-item">X</button>
                 `;
                 ingredientsList.appendChild(ingredientItem);
+            }
+            
+            // Add instruction field
+            function addInstructionField() {
+                const instructionItem = document.createElement('div');
+                instructionItem.className = 'instruction-item';
+                const stepNumber = instructionsList.children.length + 1;
+                instructionItem.innerHTML = `
+                    <span class="step-number">${stepNumber}.</span>
+                    <input type="text" class="instruction-input" placeholder="Step description">
+                    <button type="button" class="btn btn-danger remove-item">X</button>
+                `;
+                instructionsList.appendChild(instructionItem);
+            }
+            
+            // Update step numbers
+            function updateStepNumbers() {
+                const instructionItems = instructionsList.querySelectorAll('.instruction-item');
+                instructionItems.forEach((item, index) => {
+                    item.querySelector('.step-number').textContent = `${index + 1}.`;
+                });
             }
             
             // Handle image upload
@@ -399,11 +466,16 @@
                 
                 // Get form values
                 const title = document.getElementById('recipe-title').value;
-                const instructions = document.getElementById('recipe-instructions').value;
                 
                 // Get ingredients
                 const ingredientInputs = document.querySelectorAll('.ingredient-input');
                 const ingredients = Array.from(ingredientInputs)
+                    .map(input => input.value.trim())
+                    .filter(value => value !== '');
+                
+                // Get instructions
+                const instructionInputs = document.querySelectorAll('.instruction-input');
+                const instructions = Array.from(instructionInputs)
                     .map(input => input.value.trim())
                     .filter(value => value !== '');
                 
@@ -454,7 +526,6 @@
                     // Populate form
                     document.getElementById('recipe-id').value = recipe.id;
                     document.getElementById('recipe-title').value = recipe.title;
-                    document.getElementById('recipe-instructions').value = recipe.instructions;
                     
                     // Clear ingredients list
                     ingredientsList.innerHTML = '';
@@ -465,7 +536,7 @@
                         ingredientItem.className = 'ingredient-item';
                         ingredientItem.innerHTML = `
                             <input type="text" class="ingredient-input" value="${ingredient}" placeholder="Ingredient">
-                            <button type="button" class="btn btn-danger remove-ingredient">X</button>
+                            <button type="button" class="btn btn-danger remove-item">X</button>
                         `;
                         ingredientsList.appendChild(ingredientItem);
                     });
@@ -473,6 +544,26 @@
                     // Add at least one empty field if no ingredients
                     if (recipe.ingredients.length === 0) {
                         addIngredientField();
+                    }
+                    
+                    // Clear instructions list
+                    instructionsList.innerHTML = '';
+                    
+                    // Add instruction fields
+                    recipe.instructions.forEach((instruction, index) => {
+                        const instructionItem = document.createElement('div');
+                        instructionItem.className = 'instruction-item';
+                        instructionItem.innerHTML = `
+                            <span class="step-number">${index + 1}.</span>
+                            <input type="text" class="instruction-input" value="${instruction}" placeholder="Step description">
+                            <button type="button" class="btn btn-danger remove-item">X</button>
+                        `;
+                        instructionsList.appendChild(instructionItem);
+                    });
+                    
+                    // Add at least one empty field if no instructions
+                    if (recipe.instructions.length === 0) {
+                        addInstructionField();
                     }
                     
                     // Set image if exists
