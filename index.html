@@ -211,7 +211,7 @@
         }
         
         .hidden {
-            display: none;
+            display: none !important;
         }
         
         /* Modal Styles */
@@ -470,6 +470,9 @@
             
             // Initialize the app
             function init() {
+                // Ensure all modals are hidden on page load
+                hideModals();
+                
                 renderRecipes();
                 updateEmptyState();
                 
