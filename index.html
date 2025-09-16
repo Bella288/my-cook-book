@@ -1197,7 +1197,7 @@
                     let sha = null;
                     
                     try {
-                        const url = `/repos/${极GITHUB_USERNAME}/${GITHUB_REPO}/contents/${SHAREABLE_FILE_PATH}?ref=${GITHUB_BRANCH}`;
+                        const url = `/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${SHAREABLE_FILE_PATH}?ref=${GITHUB_BRANCH}`;
                         const data = await githubRequest(url);
                         currentContent = JSON.parse(atob(data.content.replace(/\s/g, '')));
                         sha = data.sha;
@@ -1209,7 +1209,7 @@
                     // Check if recipe already exists
                     const existingIndex = currentContent.findIndex(r => r.id === recipe.id);
                     
-                    if (existing极Index !== -1) {
+                    if (existingIndex !== -1) {
                         // Update existing recipe
                         currentContent[existingIndex] = recipe;
                     } else {
