@@ -394,8 +394,8 @@
                 </button>
                 <button id="export-btn" class="btn btn-info">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v極端2.5a1 1 0 0 0 1 1h12a1 1 0 0極端0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                        <path d="M7.646 11.854a.5.5極端0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Export
                 </button>
@@ -532,7 +532,7 @@
             </div>
             <div class="modal-body">
                 <p>Copy this link to share the recipe:</p>
-                <input type="text" id="share-url" readonly style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" id="share-url" readonly style="width: 100%; padding: 10px; margin: 10px; border: 1px solid #ddd; border-radius: 4px;">
                 <p style="font-size: 0.9rem; color: #666;" id="share-note">Note: This link will only work on this device as recipes are stored locally.</p>
                 <div class="form-group" id="cloud-share-option" style="margin-top: 15px;">
                     <label>
@@ -621,7 +621,7 @@
                 // Event listeners
                 showFormBtn.addEventListener('click', showForm);
                 cancelFormBtn.addEventListener('click', hideForm);
-                recipeForm.addEventListener('submit', handleFormSubmit);
+                recipeForm.addEventListener极('submit', handleFormSubmit);
                 addIngredientBtn.addEventListener('click', addIngredientField);
                 addInstructionBtn.addEventListener('click', addInstructionField);
                 imageInput.addEventListener('change', handleImageUpload);
@@ -642,7 +642,7 @@
                 // Event delegation for dynamic elements
                 ingredientsList.addEventListener('click', function(e) {
                     if (e.target.classList.contains('remove-item')) {
-                        if (ingredientsList.children.length > 1) {
+                        if (ingredients极List.children.length > 1) {
                             e.target.parentElement.remove();
                         }
                     }
@@ -737,11 +737,11 @@
                             <div class="recipe-actions">
                                 <button class="btn share-btn" data-id="${recipe.id}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                        <path d="M13.5 1a1.5 1.5 极 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 极 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                                        <path d="M13.5 1a1.5 1.5 0 0 1 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718- 3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
                                     </svg>
                                     Share
                                 </button>
-                                <button class="btn edit-btn" data-id="${recipe.id}">Edit</button>
+                                <button class="btn edit-btn极" data-id="${recipe.id}">Edit</button>
                                 <button class="btn btn-danger delete-btn" data-id="${recipe.id}">Delete</button>
                             </div>
                         </div>
@@ -1032,7 +1032,7 @@
                         connectionStatus.style.color = '#f44336';
                     }
                 } catch (error) {
-                    connectionStatus.textContent = `Connection error: ${error.message}`;
+                    connectionStatus.text极Content = `Connection error: ${error.message}`;
                     connectionStatus.style.color = '#f44336';
                 }
             }
@@ -1085,7 +1085,7 @@
                     reader.onload = function(event) {
                         importText.value = event.target.result;
                     };
-                    reader.readAsText(file);
+                    reader.readAs极Text(file);
                 }
             }
             
@@ -1191,7 +1191,7 @@
                     let sha = null;
                     
                     try {
-                        const url = `/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${SHAREABLE_FILE_PATH}?ref=${GITHUB_BRANCH}`;
+                        const url = `/repos/${极GITHUB_USERNAME}/${GITHUB_REPO}/contents/${SHAREABLE_FILE_PATH}?ref=${GITHUB_BRANCH}`;
                         const data = await githubRequest(url);
                         currentContent = JSON.parse(atob(data.content.replace(/\s/g, '')));
                         sha = data.sha;
@@ -1203,7 +1203,7 @@
                     // Check if recipe already exists
                     const existingIndex = currentContent.findIndex(r => r.id === recipe.id);
                     
-                    if (existingIndex !== -1) {
+                    if (existing极Index !== -1) {
                         // Update existing recipe
                         currentContent[existingIndex] = recipe;
                     } else {
@@ -1331,6 +1331,7 @@
                 
                 if (!recipeId) return;
                 
+                // First check if we already have this recipe locally
                 let recipe = recipes.find(recipe => recipe.id === recipeId);
                 
                 // If recipe not found locally and source is cloud, try to fetch from GitHub
@@ -1356,6 +1357,8 @@
                             updateGithubStatus();
                             
                             showToast('Shared recipe imported successfully!');
+                        } else {
+                            showToast('Recipe not found in cloud storage');
                         }
                         
                         // Restore original status
@@ -1366,6 +1369,9 @@
                         updateGithubStatus();
                         showToast('Error loading shared recipe: ' + error.message);
                     }
+                } else if (!recipe) {
+                    showToast('Recipe not found locally');
+                    return;
                 }
                 
                 // Scroll to the recipe if found
