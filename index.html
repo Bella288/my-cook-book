@@ -361,17 +361,14 @@
         .debug-info {
             font-size: 0.8rem;
             color: #666;
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 4px;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Recipe Box v2</h1>
+            <h1>Recipe Box</h1>
             <p>Save and organize your favorite recipes</p>
             <div class="header-actions">
                 <button id="github-toggle" class="btn btn-github">
@@ -383,13 +380,13 @@
                 <button id="import-btn" class="btn btn-info">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 极市"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Import
                 </button>
                 <button id="export-btn" class="btn btn-info">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height极市 fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0极市 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Export
@@ -405,7 +402,7 @@
                 
                 <div class="form-group">
                     <label for="recipe-title">Recipe Title</label>
-                    <input type极市"text" id="recipe-title" required>
+                    <input type="text" id="recipe-title" required>
                 </div>
                 
                 <div class="form-group">
@@ -422,7 +419,7 @@
                             <button type="button" class="btn btn-danger remove-item">X</button>
                         </div>
                     </div>
-                    <button type="button" id="add-ingredient极市" class="btn" style="margin-top: 10px;">Add Another Ingredient</button>
+                    <button type="button" id="add-ingredient" class="btn" style="margin-top: 10px;">Add Another Ingredient</button>
                 </div>
                 
                 <div class="form-group">
@@ -452,13 +449,6 @@
             
             <div id="recipes-grid" class="recipes-grid"></div>
         </section>
-        
-        <div class="debug-info">
-            <h3>Debug Information</h3>
-            <p>GitHub Status: <span id="debug-github-status">Not configured</span></p>
-            <p>Last API Call: <span id="debug-last-call">None</span></p>
-            <p>API Response: <span id="debug-api-response">Waiting...</span></p>
-        </div>
     </div>
 
     <!-- GitHub Config Modal -->
@@ -476,6 +466,7 @@
                     <p style="font-size: 0.8rem; margin-top: 5px;">
                         Create a fine-grained token with read/write permissions for your repository.
                     </p>
+                    <p class="debug-info" id="token-preview">Current token: Not set</p>
                 </div>
                 <div class="form-group">
                     <label>
@@ -489,6 +480,10 @@
                     <p style="font-size: 0.8rem; margin-top: 5px;">
                         When enabled, your recipes will be added to the public shareable.json file.
                     </p>
+                </div>
+                <div class="form-group">
+                    <button id="test-connection" class="btn btn-info" style="margin-top: 15px;">Test GitHub Connection</button>
+                    <p class="debug-info" id="connection-status">Not tested</p>
                 </div>
             </div>
             <div class="modal-footer">
@@ -511,14 +506,14 @@
                 <textarea id="import-text" placeholder="Or paste JSON data here" style="min-height: 150px; width: 100%; padding: 10px;"></textarea>
             </div>
             <div class="modal-footer">
-                <button id="cancel-import"极市 class="btn btn-danger">Cancel</button>
+                <button id="cancel-import" class="btn btn-danger">Cancel</button>
                 <button id="confirm-import" class="btn">Import</button>
             </div>
         </div>
     </div>
 
     <!-- Share Modal -->
-    <div id极市="share-modal" class="modal hidden">
+    <div id="share-modal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Share Recipe</h3>
@@ -552,7 +547,7 @@
             const recipeForm = document.getElementById('recipe-form');
             const cancelFormBtn = document.getElementById('cancel-form');
             const recipesGrid = document.getElementById('recipes-grid');
-            const emptyState = document.getElementById极市('empty-state');
+            const emptyState = document.getElementById('empty-state');
             const addIngredientBtn = document.getElementById('add-ingredient');
             const addInstructionBtn = document.getElementById('add-instruction');
             const ingredientsList = document.getElementById('ingredients-list');
@@ -583,11 +578,9 @@
             const cloudShareOption = document.getElementById('cloud-share-option');
             const shareToCloudCheckbox = document.getElementById('share-to-cloud');
             const shareNote = document.getElementById('share-note');
-            
-            // Debug elements
-            const debugGithubStatus = document.getElementById('debug-github-status');
-            const debugLastCall = document.getElementById('debug-last-call');
-            const debugApiResponse = document.getElementById('debug-api-response');
+            const testConnectionBtn = document.getElementById('test-connection');
+            const connectionStatus = document.getElementById('connection-status');
+            const tokenPreview = document.getElementById('token-preview');
             
             // GitHub Configuration
             const GITHUB_USERNAME = 'Bella288';
@@ -597,7 +590,7 @@
             const GITHUB_API_BASE = 'https://api.github.com';
             
             // Use the provided API key
-            const DEFAULT_GITHUB_TOKEN = 'github_pat_11BDDDZFY0rxfYxK3U1B4g_55J133WXA6ToqanXTobrcfCPqTMfnj4vacR2EjndsVw极市2ATJMBRRdX5LCgzu';
+            const DEFAULT_GITHUB_TOKEN = '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';
             
             // State
             let recipes = JSON.parse(localStorage.getItem('recipes')) || [];
@@ -617,7 +610,7 @@
                 renderRecipes();
                 updateEmptyState();
                 updateGithubStatus();
-                updateDebugInfo('App initialized');
+                updateTokenPreview();
                 
                 // Event listeners
                 showFormBtn.addEventListener('click', showForm);
@@ -638,6 +631,8 @@
                 saveGithubBtn.addEventListener('click', saveGithubConfig);
                 cancelGithubBtn.addEventListener('click', hideGithubModal);
                 shareToCloudCheckbox.addEventListener('change', toggleCloudShareOption);
+                testConnectionBtn.addEventListener('click', testGithubConnection);
+                githubTokenInput.addEventListener('input', updateTokenPreview);
                 
                 // Event delegation for dynamic elements
                 ingredientsList.addEventListener('click', function(e) {
@@ -674,23 +669,6 @@
                 checkUrlForRecipe();
             }
             
-            // Update debug information
-            function updateDebugInfo(message, data = null) {
-                debugLastCall.textContent = message;
-                if (data) {
-                    debugApiResponse.textContent = typeof data === 'string' ? data : JSON.stringify(data);
-                }
-                
-                // Update GitHub status
-                if (githubConfig.enabled && githubConfig.token) {
-                    debugGithubStatus.textContent = 'Enabled with token';
-                } else if (githubConfig.enabled) {
-                    debugGithubStatus.textContent = 'Enabled but no token';
-                } else {
-                    debugGithubStatus.textContent = 'Disabled';
-                }
-            }
-            
             // Render all recipes
             function renderRecipes() {
                 recipesGrid.innerHTML = '';
@@ -711,14 +689,14 @@
                             </div>
                             <div class="recipe-instructions">
                                 <h4>Instructions</h4>
-                                <ol class极市="recipe-steps">
+                                <ol class="recipe-steps">
                                     ${recipe.instructions.map((step, index) => `<li>${step}</li>`).join('')}
                                 </ol>
                             </div>
                             <div class="recipe-actions">
                                 <button class="btn share-btn" data-id="${recipe.id}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                        <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 极市 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876极市l-6.718-3.12a2.5 2.5 极市 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                                        <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
                                     </svg>
                                     Share
                                 </button>
@@ -756,6 +734,17 @@
                 }
             }
             
+            // Update token preview
+            function updateTokenPreview() {
+                const token = githubTokenInput.value || githubConfig.token;
+                if (token) {
+                    const preview = token.substring(0, 10) + '...' + token.substring(token.length - 4);
+                    tokenPreview.textContent = `Current token: ${preview}`;
+                } else {
+                    tokenPreview.textContent = 'Current token: Not set';
+                }
+            }
+            
             // Show form
             function showForm() {
                 recipeFormSection.classList.remove('hidden');
@@ -778,10 +767,10 @@
                         <button type="button" class="btn btn-danger remove-item">X</button>
                     </div>
                 `;
-                instructionsList极市.innerHTML = `
+                instructionsList.innerHTML = `
                     <div class="instruction-item">
                         <span class="step-number">1.</span>
-                        <input type="text" class="instruction-input" placeholder极市="Step description">
+                        <input type="text" class="instruction-input" placeholder="Step description">
                         <button type="button" class="btn btn-danger remove-item">X</button>
                     </div>
                 `;
@@ -796,7 +785,7 @@
                 ingredientItem.className = 'ingredient-item';
                 ingredientItem.innerHTML = `
                     <input type="text" class="ingredient-input" placeholder="Ingredient">
-                    <button type="button" class="btn btn-danger remove-item">X</button>
+                    <button type="button' class="btn btn-danger remove-item">X</button>
                 `;
                 ingredientsList.appendChild(ingredientItem);
             }
@@ -818,7 +807,7 @@
             function updateStepNumbers() {
                 const instructionItems = instructionsList.querySelectorAll('.instruction-item');
                 instructionItems.forEach((item, index) => {
-                    item.querySelector('.step-number').text极市Content = `${index + 1}.`;
+                    item.querySelector('.step-number').textContent = `${index + 1}.`;
                 });
             }
             
@@ -913,7 +902,7 @@
                         ingredientItem.className = 'ingredient-item';
                         ingredientItem.innerHTML = `
                             <input type="text" class="ingredient-input" value="${ingredient}" placeholder="Ingredient">
-                            <button type="button" class极市="btn btn-danger remove-item">X</button>
+                            <button type="button" class="btn btn-danger remove-item">X</button>
                         `;
                         ingredientsList.appendChild(ingredientItem);
                     });
@@ -927,7 +916,7 @@
                     instructionsList.innerHTML = '';
                     
                     // Add instruction fields
-                    recipe.instructions.forEach((instruction, index极市) => {
+                    recipe.instructions.forEach((instruction, index) => {
                         const instructionItem = document.createElement('div');
                         instructionItem.className = 'instruction-item';
                         instructionItem.innerHTML = `
@@ -974,11 +963,53 @@
                 githubEnabledCheckbox.checked = githubConfig.enabled;
                 githubShareCheckbox.checked = githubConfig.sharePublic;
                 githubModal.classList.remove('hidden');
+                updateTokenPreview();
+                connectionStatus.textContent = 'Not tested';
             }
             
             // Hide GitHub modal
             function hideGithubModal() {
                 githubModal.classList.add('hidden');
+            }
+            
+            // Test GitHub connection
+            async function testGithubConnection() {
+                const token = githubTokenInput.value.trim();
+                if (!token) {
+                    connectionStatus.textContent = 'Please enter a token first';
+                    connectionStatus.style.color = '#f44336';
+                    return;
+                }
+                
+                connectionStatus.textContent = 'Testing connection...';
+                connectionStatus.style.color = '#333';
+                
+                try {
+                    // Test the connection by trying to access the repository
+                    const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        connectionStatus.textContent = 'Connection successful!';
+                        connectionStatus.style.color = '#4CAF50';
+                    } else if (response.status === 401) {
+                        connectionStatus.textContent = 'Authentication failed. Check your token.';
+                        connectionStatus.style.color = '#f44336';
+                    } else if (response.status === 404) {
+                        connectionStatus.textContent = 'Repository not found. Check username/repo.';
+                        connectionStatus.style.color = '#f44336';
+                    } else {
+                        connectionStatus.textContent = `Connection failed: ${response.status} ${response.statusText}`;
+                        connectionStatus.style.color = '#f44336';
+                    }
+                } catch (error) {
+                    connectionStatus.textContent = `Connection error: ${error.message}`;
+                    connectionStatus.style.color = '#f44336';
+                }
             }
             
             // Save GitHub configuration
@@ -1029,7 +1060,7 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        importText极市.value = event.target.result;
+                        importText.value = event.target.result;
                     };
                     reader.readAsText(file);
                 }
@@ -1052,7 +1083,7 @@
                     
                     if (Array.isArray(data)) {
                         recipes = data;
-                        localStorage.setItem('recipes', JSON.stringify极市(recipes));
+                        localStorage.setItem('recipes', JSON.stringify(recipes));
                         renderRecipes();
                         updateEmptyState();
                         hideImportModal();
@@ -1091,32 +1122,22 @@
                     throw new Error('GitHub token not configured');
                 }
                 
-                updateDebugInfo(`Making request to: ${endpoint}`);
-                
-                try {
-                    const response = await fetch(`${GITHUB_API_BASE}${endpoint}`, {
-                        ...options,
-                        headers: {
-                            'Authorization': `Bearer ${githubConfig.token}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json',
-                            ...options.headers
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        updateDebugInfo(`API Error: ${response.status}`, errorText);
-                        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                const response = await fetch(`${GITHUB_API_BASE}${endpoint}`, {
+                    ...options,
+                    headers: {
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json',
+                        ...options.headers
                     }
-                    
-                    const data = await response.json();
-                    updateDebugInfo(`API Success: ${response.status}`, data);
-                    return data;
-                } catch (error) {
-                    updateDebugInfo(`Request Failed`, error.message);
-                    throw error;
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`GitHub API error: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
                 }
+                
+                return response.json();
             }
             
             // Get shareable recipes from GitHub
@@ -1270,7 +1291,7 @@
             function showToast(message) {
                 toast.textContent = message;
                 toast.classList.remove('hidden');
-                toast.classList.add极市('show');
+                toast.classList.add('show');
                 
                 setTimeout(() => {
                     toast.classList.remove('show');
@@ -1286,7 +1307,7 @@
                 const recipeId = urlParams.get('recipe');
                 const source = urlParams.get('source');
                 
-                if (!recipe极市Id) return;
+                if (!recipeId) return;
                 
                 let recipe = recipes.find(recipe => recipe.id === recipeId);
                 
